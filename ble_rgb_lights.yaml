@@ -1,5 +1,5 @@
 esphome:
-  name: ble_rgb_light
+  name: ble_rgb_lights
   libraries:
     - "BLE"
 
@@ -39,15 +39,4 @@ external_components:
 light:
   - platform: ble_rgb_light
     name: BLE RGB Light
-    id: my_ble_light
-    output: output_component1
-
-output:
-  - platform: template
-    id: output_component1
-    type: float
-    write_action:
-    #dummy output to satisfy light output requirement
-      - lambda: |-
-          // Do nothing
-          return;
+    id: ble_rgb_light_1
