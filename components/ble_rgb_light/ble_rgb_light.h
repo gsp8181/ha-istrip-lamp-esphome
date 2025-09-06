@@ -9,6 +9,7 @@ namespace empty_light {
 class EmptyLightOutput : public light::LightOutput, public Component {
  public:
   void setup() override;
+  void loop() override;
   light::LightTraits get_traits() override;
   void write_state(light::LightState *state) override;
   void dump_config() override;

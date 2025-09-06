@@ -1,5 +1,5 @@
 esphome:
-  name: ble_rgb_lights
+  name: ble-rgb-lights
   libraries:
     - "BLE"
 
@@ -15,18 +15,18 @@ wifi:
     ssid: "BLERGB Fallback"
     password: "fallbackpass"
 
-web_server:
-  port: 80
-  auth:
-    username: !secret web_server_username
-    password: !secret web_server_password
+# web_server:
+#   port: 80
+#   auth:
+#     username: !secret web_server_username
+#     password: !secret web_server_password
 
 logger:
 
 api:
 
-ota:
-  platform: esphome
+# ota:
+#   platform: esphome
 
 external_components:
   - source: components
