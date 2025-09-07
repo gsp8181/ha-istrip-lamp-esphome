@@ -300,6 +300,18 @@ void EmptyLightOutput::write_state(light::LightState *state) {
         ESP_LOGW(TAG, "BLE target characteristic not set, cannot send command");
         return;
     }
+
+    // Check if light should be turned off
+    if (!state->current_values.is_on()) {
+        // All values zero for off
+        uint8_t cmd[16] = {84,82,0,87, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        uint8_t encrypted[16];
+        aes_encrypt(cmd, encrypted);
+        target_characteristic->writeValue(encrypted, 16, false);
+        ESP_LOGD(TAG, "Sent BLE RGB OFF command (all zeroes)");
+        return;
+    }
+
     float red, green, blue, brightness;
     red = state->current_values.get_red();
     green = state->current_values.get_green();
@@ -314,7 +326,7 @@ void EmptyLightOutput::write_state(light::LightState *state) {
     // Convert brightness to 0..64 (max light value)
     uint8_t light = (uint8_t)(brightness * 64);
 
-    // Example: groupId=1, extraParam=1, speed=64, type=0
+    // Example: groupId=1, extraParam=0, speed=64, type=0
     uint8_t groupId = 1;
     uint8_t extraParam = 0;
     uint8_t speed = 64;

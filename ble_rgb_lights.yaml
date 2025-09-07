@@ -40,3 +40,4 @@ light:
   - platform: ble_rgb_light
     name: BLE RGB Light
     id: ble_rgb_light_1
+    default_transition_length: 1s
