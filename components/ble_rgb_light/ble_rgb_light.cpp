@@ -89,6 +89,13 @@ class BleAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
 
 void EmptyLightOutput::setup() {
     ESP_LOGI(TAG, "setup()");
+            BLEDevice::init("");
+        last_scan_time = millis();
+        BLEScan *scan = BLEDevice::getScan();
+        scan->setAdvertisedDeviceCallbacks(new BleAdvertisedDeviceCallbacks());
+        scan->setActiveScan(true);
+        scan->start(3, false); // Scan for 3 seconds
+        yield();
 
 }
 
@@ -103,13 +110,7 @@ static unsigned long ble_action_start = 0;
 static bool setupzz = false;
 void EmptyLightOutput::loop() {
     if (!setupzz) {
-        BLEDevice::init("");
-        last_scan_time = millis();
-        BLEScan *scan = BLEDevice::getScan();
-        scan->setAdvertisedDeviceCallbacks(new BleAdvertisedDeviceCallbacks());
-        scan->setActiveScan(true);
-        scan->start(3, false); // Scan for 3 seconds
-        yield();
+
         setupzz = true;
     }
     
@@ -338,6 +339,29 @@ void EmptyLightOutput::write_state(light::LightState *state) {
 
     target_characteristic->writeValue(encrypted, 16, false);
     ESP_LOGD(TAG, "Sent BLE RGB command: R=%d G=%d B=%d Brightness=%d", r, g, b, light);
+}
+
+// New method: write_state_raw
+void EmptyLightOutput::write_state_effect(uint8_t light, uint8_t speed, uint8_t effect) {
+    if (target_characteristic == nullptr) {
+        ensure_ble_connected();
+        ESP_LOGW(TAG, "BLE target characteristic not set, cannot send effect command");
+        return;
+    }
+
+    // Send all channels at full (white) for demonstration, adjust as needed
+    uint8_t r = 255;
+    uint8_t g = 255;
+    uint8_t b = 255;
+    uint8_t groupId = 1;
+    uint8_t type = 0;
+
+    uint8_t cmd[16] = {84,82,0,87, 2, groupId, effect, r, g, b, light, speed, type, 0, 0, 0};
+    uint8_t encrypted[16];
+    aes_encrypt(cmd, encrypted);
+
+    target_characteristic->writeValue(encrypted, 16, false);
+    ESP_LOGD(TAG, "Sent BLE RGB RAW command: R=%d G=%d B=%d Brightness=%d Speed=%d ExtraParam=%d", r, g, b, light, speed, effect);
 }
 
 void EmptyLightOutput::dump_config(){

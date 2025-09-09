@@ -30,14 +30,66 @@ api:
 
 external_components:
   - source: components
-  # - source:
-  #     type: git
-  #     url: https://github.com/esphome/esphome
-  #     ref: dev
-  #   components: [ BLE ]
 
 light:
   - platform: ble_rgb_light
     name: BLE RGB Light
     id: ble_rgb_light_1
     default_transition_length: 1s
+
+ble_rgb_effect:
+  id: ble_effect_controller
+  light_id: ble_rgb_light_1
+
+number:
+  - platform: template
+    name: "BLE RGB Effect Speed"
+    id: ble_rgb_speed
+    min_value: 0
+    max_value: 64
+    step: 1
+    initial_value: 32
+    optimistic: true
+
+  - platform: template
+    name: "BLE RGB Effect Brightness"
+    id: ble_rgb_brightness
+    min_value: 0
+    max_value: 64
+    step: 1
+    initial_value: 64
+    optimistic: true
+
+select:
+  - platform: template
+    name: "BLE RGB Effect"
+    id: ble_rgb_effect_selection
+    options:
+      - "Fade7"
+      - "Fade3"
+      - "Breath R"
+      - "Strobe R"
+      - "Breath7"
+      - "Breath3"
+      - "Breath B"
+      - "Strobe B"
+      - "Flash7"
+      - "Flash3"
+      - "Breath G"
+      - "Strobe G"
+    initial_option: "Fade7"
+    optimistic: true
+
+button:
+  - platform: template
+    name: "Send BLE RGB Effect"
+    on_press:
+      then:
+        - lambda: |-
+            auto *effect_controller = id(ble_effect_controller);
+            if (id(ble_rgb_effect_selection).active_index().has_value()) {
+              int effect = 1 + id(ble_rgb_effect_selection).active_index().value();
+              int speed = int(id(ble_rgb_speed).state);
+              int brightness = int(id(ble_rgb_brightness).state);
+              effect_controller->send_effect(brightness, speed, effect);
+            }

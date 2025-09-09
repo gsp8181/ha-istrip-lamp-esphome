@@ -12,6 +12,7 @@ class EmptyLightOutput : public light::LightOutput, public Component {
   void loop() override;
   light::LightTraits get_traits() override;
   void write_state(light::LightState *state) override;
+  void write_state_effect(uint8_t light, uint8_t speed, uint8_t effect);
   void dump_config() override;
  };
 

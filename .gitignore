@@ -3,3 +3,4 @@ secrets.yaml
 */__pycache__/*
 .esphome/
 components/ble_rgb_light/__pycache__/*
+*.pyc
