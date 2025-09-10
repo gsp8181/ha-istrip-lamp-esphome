@@ -54,7 +54,7 @@ light:
             auto encrypted = aes->encrypt(value);
             return encrypted;
 
-ble_rgb_effect:
+rgb_effect:
   id: ble_effect_controller
   light_id: ble_rgb_light_1
 
