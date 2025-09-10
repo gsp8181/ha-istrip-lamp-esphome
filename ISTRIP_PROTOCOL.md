@@ -29,7 +29,7 @@ All commands are 16 bytes, encrypted with AES-128 ECB using the key above.
 
 ## Command Types
 
-### 1. Color/Effect Command
+### 1. Colour/Effect Command
 
 - **Type:** `0x02`
 - **Format:**  
@@ -98,7 +98,7 @@ All commands are 16 bytes, encrypted with AES-128 ECB using the key above.
 
 ## Example Usage
 
-- To set a blue color with Fade7 effect, full brightness and speed:
+- To set a blue colour with Fade7 effect, full brightness and speed (note the colour is ignored with effects):
   ```
   groupId = 1
   extraParam = 1 (Fade7)

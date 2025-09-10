@@ -7,19 +7,17 @@ This project is an [ESPHome](https://esphome.io/) configuration and custom compo
 - Controls BLE RGB LED strips that use the iStrip protocol.
 - Supports on/off, color, brightness, and a variety of animated effects.
 - Integrates with Home Assistant via ESPHome API.
-- Exposes effect selection, speed, and brightness as Home Assistant entities.
-- Button to trigger effects directly from Home Assistant.
 
 ## Hardware
 
 - ESP32 development board
-- Compatible BLE RGB LED strip (iStrip protocol)
+- Compatible BLE RGB LED (iStrip protocol)
 
 ## Usage
 
 1. **Configure your WiFi credentials** in `secrets.yaml`.
 2. **Flash the ESP32** with the provided ESPHome YAML (`ble_rgb_lights.yaml`).
-3. **Add the device to Home Assistant** using ESPHome integration.
+3. **Add the device to Home Assistant** using ESPHome integration. Check the devices settings tab and it will show up automatically
 4. **Control the light**: 
    - Use the light entity for on/off, color, and brightness.
    - Use the select, number, and button entities to choose and trigger effects.
@@ -27,13 +25,20 @@ This project is an [ESPHome](https://esphome.io/) configuration and custom compo
 ## Custom Components
 
 - `ble_rgb_light`: Handles BLE connection and basic light control.
-- `ble_rgb_effect`: Exposes effect triggering as a separate component for easy automation.
+- `ble_rgb_effect`: Exposes effect triggering as a separate component.
+- `rgb_light`: Just controls the light without a BLE connection
+- `ble_aes`: Performs AES encryption of the command as per the iStrip protocol
+
+## Variants
+
+- `esphome_ble`: Uses the native ESPHome BLE library to connect to the lamp
+- `manual_ble`: Implements the connection logic manually to connect to the lamp
 
 ## Notes
 
 - The BLE protocol is reverse-engineered for iStrip-compatible devices.
-- All BLE communication is handled non-blocking to avoid watchdog resets.
-- Effects and parameters are mapped to the iStrip app's effect numbers.
+- Only supports a single lamp on group 1.
+- Enabling the web server will panic loop the device. Possibly OOM.
 - **Troubleshooting:** Occasionally, the light may be blocked from connecting and you may see "core1" errors in the ESP logs. If this happens, simply power cycle the light to restore normal operation.
 
 ## License

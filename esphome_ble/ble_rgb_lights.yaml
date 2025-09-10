@@ -1,0 +1,113 @@
+esphome:
+  name: ble-rgb-lights
+  libraries:
+    - "BLE"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_hostname
+  password: !secret wifi_password
+  # ap:
+  #   ssid: "BLERGB Fallback"
+  #   password: "fallbackpass"
+
+# web_server:
+#    port: 80
+#    auth:
+#      username: !secret web_server_username
+#      password: !secret web_server_password
+
+logger:
+
+api:
+
+# ota:
+#   platform: esphome
+
+external_components:
+  - source: ../components
+
+ble_aes:
+  id: aes_encryptor
+
+ble_client:
+  - id: ble_light
+    mac_address: eb:f6:41:21:14:d6
+
+light:
+  - platform: rgb_light
+    name: BLE RGB Light
+    id: ble_rgb_light_1
+    default_transition_length: 1s
+    write_action:
+      - ble_client.ble_write:
+          id: ble_light
+          service_uuid: 0000ac50-1212-efde-1523-785fedbeda25
+          characteristic_uuid: 0000ac52-1212-efde-1523-785fedbeda25
+          value: !lambda |-
+            // Encrypt using AES component
+            auto *aes = id(aes_encryptor);
+            auto encrypted = aes->encrypt(value);
+            return encrypted;
+
+ble_rgb_effect:
+  id: ble_effect_controller
+  light_id: ble_rgb_light_1
+
+number:
+  - platform: template
+    name: "BLE RGB Effect Speed"
+    id: ble_rgb_speed
+    min_value: 0
+    max_value: 64
+    step: 1
+    initial_value: 32
+    optimistic: true
+
+  - platform: template
+    name: "BLE RGB Effect Brightness"
+    id: ble_rgb_brightness
+    min_value: 0
+    max_value: 64
+    step: 1
+    initial_value: 64
+    optimistic: true
+
+select:
+  - platform: template
+    name: "BLE RGB Effect"
+    id: ble_rgb_effect_selection
+    options:
+      - "Fade7"
+      - "Fade3"
+      - "Breath R"
+      - "Strobe R"
+      - "Breath7"
+      - "Breath3"
+      - "Breath B"
+      - "Strobe B"
+      - "Flash7"
+      - "Flash3"
+      - "Breath G"
+      - "Strobe G"
+    initial_option: "Fade7"
+    optimistic: true
+
+button:
+  - platform: template
+    name: "Send BLE RGB Effect"
+    on_press:
+      then:
+        - lambda: |-
+            auto *effect_controller = id(ble_effect_controller);
+            if (id(ble_rgb_effect_selection).active_index().has_value()) {
+              int effect = 1 + id(ble_rgb_effect_selection).active_index().value();
+              int speed = int(id(ble_rgb_speed).state);
+              int brightness = int(id(ble_rgb_brightness).state);
+              effect_controller->send_effect(brightness, speed, effect);
+            }
+
